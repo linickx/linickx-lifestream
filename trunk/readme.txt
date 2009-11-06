@@ -4,7 +4,7 @@ Donate link: http://www.linickx.com/index.php?content=donate
 Tags: lifestream, feed
 Requires at least: 2.8.4
 Tested up to: 2.8.5
-Stable tag: 0.1
+Stable tag: 0.1.1
 
  A WordPress Plug-in which allows you to lifestream any Feed!
 
