@@ -45,6 +45,18 @@ LINICKX LifeStream downloads your feeds and saves them to a database, you get to
 = Where is the Feed Database ? =
 By default it goes into WordPress, but if you have lots of big feeds this could slow things down. To speed things up, change to a *file* database, **make sure wp-content is writable** and you'll see your feeds saved in `lnx_lifestream_feeddb.txt` get created.  
 
+= What does "Can't find Wordpress, edit $WPDIR in run.php" Mean? = 
+If you want to run linickx-lifestream from cron then the plugin needs to know how to find WordPress. By Default the plugin guesses that your plugin is installed in /wp/ but your blog might not be installed there so you'll have to edit run.php. If your blog is in /blog/ for example change like so..
+Old run.php...
+
+`$WPDIR = "/wp";`
+
+New run.php...
+
+`$WPDIR = "/blog";`
+
+and that error message should go away.
+
 == Screenshots ==
 
 1. The Admin interface, where you set up the magic !
