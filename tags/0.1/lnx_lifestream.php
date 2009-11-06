@@ -5,7 +5,7 @@ Plugin URI: http://www.linickx.com/archives/2524/introducing-linickx-lifestream-
 Description: A WordPress Plug-in which allows you to lifestream any Feed! 
 Version: 0.1
 Author: Nick Bettison
-Author URI: http://www.linickx.com.com/
+Author URI: http://www.linickx.com/
 */
 
 	# Only load up the admin code if we need it :-)
