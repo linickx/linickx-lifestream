@@ -65,3 +65,6 @@ and that error message should go away.
 
 = 0.1 =
 * Initial Release
+
+= 0.1.1 =
+* Patch to fix error - include_once error
