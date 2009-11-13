@@ -120,19 +120,20 @@
 					}
 					// found new item, add it to db
 					$i = array();
-					$i['title'] = $item->get_title();
-					$i['link'] = $item->get_link();
+					$i['title'] = trim($item->get_title());
+					$i['link'] = trim($item->get_link());
 					$i['author'] = '';
 					$author = $item->get_author();
 					if($author)
 					{
-						$i['author'] = $author->get_name();
+						$i['author'] = trim($author->get_name());
 					}
-					$i['date'] = $item->get_date('U');
+					$i['date'] = trim($item->get_date('U'));
 					$i['content'] = $item->get_content();
+
 					$lnx_lifestream_feed = $item->get_feed();
-					$i['feed_link'] = $lnx_lifestream_feed->get_permalink();
-					$i['feed_title'] = $lnx_lifestream_feed->get_title();
+					$i['feed_link'] = trim($lnx_lifestream_feed->get_permalink());
+					$i['feed_title'] = trim($lnx_lifestream_feed->get_title());
 		 
 					//Create WP Post
 					unset($lnx_post);
