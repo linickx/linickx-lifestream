@@ -54,16 +54,16 @@ If you want to run linickx-lifestream from cron then the plugin needs to know ho
 
 == Changelog ==
 
-= 0.1 =
-* Initial Release
-
-= 0.1.1 =
-* Patch to fix error - include_once error
-
-= 0.1.2 =
-* Patch to fix cron error in dashboard
-
 = 0.1.3 =
 * Fix WordPres AutoMagic Updates broken by 0.1.2
 * Try to fix execution issues with max time and is_running check
 * Introduce config.php to resolve upgrade issues
+
+= 0.1.2 =
+* Patch to fix cron error in dashboard
+
+= 0.1.1 =
+* Patch to fix error - include_once error
+
+= 0.1 =
+* Initial Release
