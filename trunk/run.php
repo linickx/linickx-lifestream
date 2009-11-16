@@ -10,6 +10,9 @@
 		require("config.php");
 	}
 
+	// By Default run.php is silent
+	$lnx_lifestream_cronverbose = false;
+
 	// Step 1, load WordPress if it's not there already.
 	if (!defined('WP_USE_THEMES')) {
 
@@ -31,6 +34,11 @@
 					die('Not Configured to run as Cron');
 	        		}
 
+				// Should we print anything on output?
+				if ($lnx_lifestream_options['cronverbose'] == "1") {
+					$lnx_lifestream_cronverbose = true;
+				}
+
 		}
 	}
 
@@ -41,11 +49,21 @@
 	
 	if (!$lnx_isrunning) {
 
+		if ($lnx_lifestream_cronverbose) {
+			?><h1>LINICKX LifeStream</h1>
+<?php
+			
+		}
+
 		// Load our URLS from the Database...
 		$lnx_lifestream_urls = get_option('lnx_lifestream_urls');
 		$lnx_lifestream_options['isrunning'] = true; // We Are Running!
 		update_option('lnx_lifestream_options', $lnx_lifestream_options);
 
+	} else {
+		if ($lnx_lifestream_cronverbose) {
+			echo "Run.php is already running, exiting...";
+		}
 	}
 
 	// All code sit's in here, so that nothing happenz if there are no URLS to get.
@@ -60,6 +78,12 @@
 		$numberOfDaysInSeconds = ($numberOfDays*24*60*60);
 		$expireDate = time() - $numberOfDaysInSeconds;
 
+		if ($lnx_lifestream_cronverbose) {
+			echo "Number of Days to Store in DB:" . $numberOfDays . "<br /> \n";
+			echo "Posts with date before " . date('d - M - Y (H:i)',$expireDate) . " will be ignored <br /> \n";
+
+		}
+
 		$lnx_feeddb_location = $lnx_lifestream_options['feeddb']; // Where should our DB live?
 		
 		/*
@@ -68,24 +92,54 @@
 
 		if ($lnx_feeddb_location == "wp") { // DB Lives in WordPress
 
+			if ($lnx_lifestream_cronverbose) {
+				echo "The Feed DB lives in WordPress <br /> \n";
+			}	
+
 			if (get_option('lnx_lifestream_feeddb')) {
 				$savedItems = unserialize(get_option('lnx_lifestream_feeddb'));
+
+				if ($lnx_lifestream_cronverbose) {
+					echo "Found Old DB <br />\n";
+				}
+
 			} else {
 				$savedItems = array(); // A new DB is created if we don't find it.
+
+				if ($lnx_lifestream_cronverbose) {
+					echo "Creating new DB <br /> \n";
+				}
 			}
 		
 		} elseif ($lnx_feeddb_location == "file") { // DB Lives as a file
+
+			if ($lnx_lifestream_cronverbose) {
+                                echo "The Feed DB is a File <br /> \n";
+                        }
 		
 			$savedItemsFilename = WP_CONTENT_DIR . "/lnx_lifestream_feeddb.txt";
 	
 			if(file_exists($savedItemsFilename)) {
+
+				if ($lnx_lifestream_cronverbose) {
+					echo "Found a file to read <br /> \n";
+				}
+
         			$savedItems = unserialize(file_get_contents($savedItemsFilename));
         			if(!$savedItems) {
                 			$savedItems = array();
+					
+					if ($lnx_lifestream_cronverbose) {
+                                        	echo "Creating new DB <br /> \n";
+                                	}
         			}
 			}
 		} else {
 			$savedItems = array(); // failsafe, create array.
+
+			if ($lnx_lifestream_cronverbose) {
+				echo "Umm, I couldn't find a valid DB option!";
+			}
 		}
 
 		 
@@ -102,20 +156,30 @@
 
 			$lnx_lifestream_feed = fetch_feed($lnx_lifestream_url); // go WP-SimplePie, do your thing!
 
+			if ($lnx_lifestream_cronverbose) {
+				echo " \n <h2>Feed ID / Counter = " . $counter . "</h2> \n";
+				echo 'Fetching Feed: <a href="' . $lnx_lifestream_url . '">' . $lnx_lifestream_url .'</a><br />' . "\n";
+			}
+
 			foreach($lnx_lifestream_feed->get_items() as $item)
 			{
 			 
 					// if item is too old dont even look at it
-					if($item->get_date('U') < $expireDate)
+					if($item->get_date('U') < $expireDate) {
+						if ($lnx_lifestream_cronverbose) {
+							echo $item->get_title() . " Too Old, skipping... <br /> \n";
+						}
 						continue;
-		 
+		 			}
 		 
 					// make id
 					$id = md5($item->get_id());
 				
 					// if item is already in db, skip it
-					if(isset($savedItems[$id]))
-					{
+					if(isset($savedItems[$id])) {
+						if ($lnx_lifestream_cronverbose) {
+                                                        echo $item->get_title() . " Is Already in DB, Skipping... <br /> \n";
+						}
 								continue;
 					}
 					
@@ -141,13 +205,30 @@
 
 					$i['content'] = $item->get_content();
 
-					$lnx_lifestream_feed = $item->get_feed();
+					$i_feed = $item->get_feed();
 
-					$i['feed_link'] = $lnx_lifestream_feed->get_permalink();
+					$i['feed_link'] = $i_feed->get_permalink();
 					$i['feed_link'] = trim($i['feed_link']);
 
-					$i['feed_title'] = $lnx_lifestream_feed->get_title();
+					$i['feed_title'] = $i_feed->get_title();
 					$i['feed_title'] = trim($i['feed_title']);
+
+
+					if ($lnx_lifestream_cronverbose) {
+                                                        ?>
+								<h3>Found a New Item</h3>
+								<ul>
+							<?php
+								echo "<li>Item Title: " . $i['title'] . "</li> \n";
+								echo "<li>Item Link: " . $i['link'] . "</li> \n";
+								echo "<li>Item Author: " . $i['author'] . "</li> \n";
+								echo "<li>Item Date: " . $i['date'] . "</li> \n";
+								echo "<li>Feed Link: " . $i['feed_link'] . "</li> \n";
+								echo "<li>Feed Title: " . $i['feed_title'] . "</li> \n";
+							?>
+								</ul>
+							<?php
+					}
 		 
 					//Create WP Post
 					unset($lnx_post);
@@ -170,6 +251,23 @@
 					// Insert the post into the database
 					 wp_insert_post( $lnx_post );
 
+					if ($lnx_lifestream_cronverbose) {
+						?>	<h3>Creating New Post</h3>
+							<ul>
+						<?php
+							echo "<li>Post Title: " . $lnx_post['post_title'] . "</li> \n";
+							echo "<li>Post Status: " . $lnx_post['post_status'] . "</li> \n";
+							echo "<li>Post Author: " . $lnx_post['post_author'] . "</li> \n";
+							echo "<li>Post Category: " . $lnx_post['post_category']  . "</li> \n";
+							echo "<li>Post Tags: " . $lnx_post['tags_input'] . "</li> \n";
+							echo "<li>Post Date: " . $lnx_post['post_date'] .  "</li> \n";
+							echo "<li>Post Content: " . $lnx_post['post_content'] . "</li> \n";
+						?>
+							</ul>
+							<hr />
+						<?php
+					}
+
 					$savedItems[$id] = $i;
 			}
 			$counter++;
@@ -183,6 +281,10 @@
 			{
         			if($savedItems[$key]['date'] < $expireDate)
         			{
+					if ($lnx_lifestream_cronverbose) {
+						echo "Deleting " . $savedItems[$key]['title'] . "From DB <br /> \n";
+					}
+					
                 			unset($savedItems[$key]);
         			}
 		}
@@ -198,35 +300,47 @@
 		}
 		uasort($savedItems,'customSort');
 	 
-	 
+		if ($lnx_lifestream_cronverbose) {
+			echo "\n <p>&nbsp;</p> \n \n"; // White space, to make output more readable.
+		} 
 	 
 		/*
 				save db
 		*/
 		if ($lnx_feeddb_location == "wp") { // DB Lives in WordPress
 
-                        if (get_option('lnx_lifestream_feeddb'))
-						{
-								update_option('lnx_lifestream_feeddb',serialize($savedItems));
-						} else {
-								// Create New DB :-)
-								add_option('lnx_lifestream_feeddb',serialize($savedItems));
-						}
+                        if (get_option('lnx_lifestream_feeddb')) {
+				update_option('lnx_lifestream_feeddb',serialize($savedItems));
+
+					if ($lnx_lifestream_cronverbose) {
+						echo "Updating DB in WP <br /> \n";	
+					}
+			} else {
+				// Create New DB :-)
+				add_option('lnx_lifestream_feeddb',serialize($savedItems));
+
+					if ($lnx_lifestream_cronverbose) {
+						echo "Creating new DB in WP <br /> \n";
+					}
+			}
 		
                 } elseif ($lnx_feeddb_location == "file") { // DB Lives as a file
 
                         if (!$handle = fopen($savedItemsFilename, 'a')) {
-							echo "Cannot open file ($savedItemsFilename)";
-						}	
+				echo "Cannot open file ($savedItemsFilename)";
+			}	
 
-						if(!fwrite($handle,serialize($savedItems)))
-						{
-								echo ("<strong>Error: Can't save items to file.</strong><br>");
-						}
+			if(!fwrite($handle,serialize($savedItems))) {
+				echo ("<strong>Error: Can't save items to file.</strong> <br /> \n");
+			} else {
+				if ($lnx_lifestream_cronverbose) {
+					echo "Writing DB to File <br /> \n";
+				}
+			}
 
 
                 } else {
-                        echo ("<strong>Error: Can't save Feed Database.</strong><br>");
+                        echo ("<strong>Error: Can't save Feed Database.</strong><br /> \n");
                 }
 
 		/*
@@ -234,5 +348,15 @@
 		*/
 		$lnx_lifestream_options['isrunning'] = false;
                 update_option('lnx_lifestream_options', $lnx_lifestream_options);
+
+		if ($lnx_lifestream_cronverbose) {
+			echo "<strong>Done.</strong>";
+		}
+
+	} else {
+		if ($lnx_lifestream_cronverbose) {
+			echo "No URLS/FEEDS Found in Database. \n";
+		}
 	}
+
 ?>

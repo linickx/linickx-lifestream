@@ -54,6 +54,13 @@ If you want to run linickx-lifestream from cron then the plugin needs to know ho
 
 == Changelog ==
 
+= TRUNK =
+* Troubleshooting Feature-Pack
+ * Factory Reset
+ * Datadump - URL/Feeds
+ * Datadump - Lifestream DB
+ * Verbose Cron Mode
+
 = 0.1.3 =
 * Fix WordPres AutoMagic Updates broken by 0.1.2
 * Try to fix execution issues with max time and is_running check
