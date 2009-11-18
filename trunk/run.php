@@ -203,7 +203,11 @@
 					$i['date'] = $item->get_date('U');
 					$i['date'] = trim($i['date']);
 
+					/*
+					// This line here is what caused the multi-post issue http://wordpress.org/support/topic/330243
+					// I wanted it so in the future I could post feed content, but since I don't need it now it's part of this comment :-)
 					$i['content'] = $item->get_content();
+					*/
 
 					$i_feed = $item->get_feed();
 

@@ -18,6 +18,7 @@
 
                         if (get_option('lnx_lifestream_feeddb')) {
                                 $savedItems = unserialize(get_option('lnx_lifestream_feeddb'));
+				echo "Loading DB From WP";
                         } else {
 				echo "Loading WordPress DB Failed";
                         }
@@ -28,6 +29,7 @@
 
                         if(file_exists($savedItemsFilename)) {
                                 $savedItems = unserialize(file_get_contents($savedItemsFilename));
+				echo "Loading DB from File";
                         } else {
 				echo "lnx_lifestream_feeddb.txt Doesn't exist in" .  WP_CONTENT_DIR;
 			}
