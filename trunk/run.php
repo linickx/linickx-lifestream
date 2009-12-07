@@ -13,6 +13,9 @@
 	// By Default run.php is silent
 	$lnx_lifestream_cronverbose = false;
 
+	// By Default Fail-Safe Override is False
+	$lnx_lifestream_fso = false;
+
 	// Step 1, load WordPress if it's not there already.
 	if (!defined('WP_USE_THEMES')) {
 
@@ -182,6 +185,33 @@
 						}
 								continue;
 					}
+
+					// Post fail safe, if id exists in meta data, skip it...
+					$lnx_meta_querey_res = $wpdb->get_results("SELECT meta_key, meta_value FROM $wpdb->postmeta WHERE meta_key = \"lnx_lifestream_id\" AND meta_value = \"$id\"");
+					if ($lnx_meta_querey_res) {
+
+						// Ah-ha, we've found this already exists!
+						if ($lnx_lifestream_cronverbose) {
+                                                        echo $item->get_title() . " Post Fail-Safe tripped, Skipping... <br /> \n";
+                                                }
+
+						// Allow users to override our fail-safe thingy
+						if (isset($_GET['fsoverride'])) {
+							if (is_numeric($_GET['fsoverride'])) {
+								if ($_GET['fsoverride'] == "1") {
+									$lnx_lifestream_fso = true;
+								}
+							}
+						}
+
+						if (!$lnx_lifestream_fso) { // Override is off
+                                                                continue;
+						} else {
+							if ($lnx_lifestream_cronverbose) {
+                                                        	echo "Fail-Safe-Overide enabled, posting... " . $item->get_title() . " <br /> \n";
+                                                	}
+						}
+					}
 					
 					// found new item, add it to db
 					$i = array();
@@ -253,10 +283,13 @@
 					$lnx_post['post_content'] = '<a href="' . $i['link'] . '">' . $i['title'] . '</a>';
 
 					// Insert the post into the database
-					 wp_insert_post( $lnx_post );
+					$lnx_wp_post_ID =  wp_insert_post( $lnx_post );
+
+					// Post Meta Data, it's like a TAG we were here
+					add_post_meta($lnx_wp_post_ID, 'lnx_lifestream_id', $id);
 
 					if ($lnx_lifestream_cronverbose) {
-						?>	<h3>Creating New Post</h3>
+						?>	<h3>Creating New Post - <?php echo $lnx_wp_post_ID; ?></h3>
 							<ul>
 						<?php
 							echo "<li>Post Title: " . $lnx_post['post_title'] . "</li> \n";
@@ -266,6 +299,7 @@
 							echo "<li>Post Tags: " . $lnx_post['tags_input'] . "</li> \n";
 							echo "<li>Post Date: " . $lnx_post['post_date'] .  "</li> \n";
 							echo "<li>Post Content: " . $lnx_post['post_content'] . "</li> \n";
+							echo "<li>Post Meta ID: " . $id .  "</li> \n";
 						?>
 							</ul>
 							<hr />
