@@ -52,7 +52,7 @@ If you want to run linickx-lifestream from cron then the plugin needs to know ho
 Version 0.1.x had a frustrating double-post bug where by some feed items would not be saved in the feed DB thus be posted to WP multiple times. I cannot work out if this is a Bug in my plugin, wordpress, simplepie or even PHP so I cam up with this fail-safe mechanism. As of 0.2 Lifestream posts will be created with some meta_data in a key called `lnx_lifestream_id` if a feed ID matches this key then a new post will not be created.
 
 = Can the Post Fail-Safe be overridden? =
-Just like in James Bond there is a manual override where by you can force these skipped posts to be created. You will need to be using Cron mode and web-broswe to domain.com/wp-content/plugins/linickx-lifestream/run.php?fsoverride=1 ... remember to see what cron mode is doing enable the `Verbose` option in the dashboard.
+Just like in your fav action movie there is a manual override where by you can force these skipped posts to be created. You will need to be using Cron mode and web-broswe to domain.com/wp-content/plugins/linickx-lifestream/run.php?fsoverride=1 ... remember to see what cron mode is doing enable the `Verbose` option in the dashboard.
 
 == Screenshots ==
 

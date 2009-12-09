@@ -7,6 +7,10 @@
 <h3>URL(S) / FEED(S) in the Database</h3>
 
 <?php
+	$lnx_lifestream_options = get_option('lnx_lifestream_options'); // Plugin Options
+	$lnx_lifestram_lastupdate = $lnx_lifestream_options['lastupdate'];
+	
+	echo "Last Update: <em>$lnx_lifestram_lastupdate</em> = " . date('d - M - Y (H:i)',$lnx_lifestram_lastupdate) . "<hr/>";
 
 	$lnx_lifestream_urls = get_option('lnx_lifestream_urls');
 
@@ -22,9 +26,9 @@
 
 		foreach($lnx_lifestream_urls as $lnx_lifestream_url) {
 
-			echo  $lnx_lifestream_url;
+			echo  "<p><b><a href=\"" . $lnx_lifestream_url . "\">" . $lnx_lifestream_url . "</a></b><pre>";
 			print_r($lnx_lifestream_urls_meta[$counter]);
-			echo "<hr />";
+			echo "</pre></p>";
 
 			$counter++;
 		}

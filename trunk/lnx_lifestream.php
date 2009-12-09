@@ -21,7 +21,7 @@ Author URI: http://www.linickx.com/
 		// This is the function WP kicks off to update the feeds.
 		function lnx_lifestream_update() {
 
-			global $lnx_lifestream_options; // you always need options :)
+			global $wpdb, $lnx_lifestream_options; // you always need options :)
 
 			if (isset($lnx_lifestream_options['lastupdate'])) { // have re run before?
 
@@ -33,7 +33,6 @@ Author URI: http://www.linickx.com/
                 	        if (time() - $lnx_lifestram_lastupdate < $lnx_lifestream_updateinterval) {
                         	        return; // no, return then.
                         	}
-
 				// Yes! Update
 				include_once(WP_PLUGIN_DIR . "/linickx-lifestream/run.php");
 
