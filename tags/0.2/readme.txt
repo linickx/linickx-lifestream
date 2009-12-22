@@ -54,6 +54,9 @@ Version 0.1.x had a frustrating double-post bug where by some feed items would n
 = Can the Post Fail-Safe be overridden? =
 Just like in your fav action movie there is a manual override where by you can force these skipped posts to be created. You will need to be using Cron mode and web-broswe to domain.com/wp-content/plugins/linickx-lifestream/run.php?fsoverride=1 ... remember to see what cron mode is doing enable the `Verbose` option in the dashboard.
 
+= Can I post the Full Content, not just links? =
+What you need is [FeedWordPress](http://wordpress.org/extend/plugins/feedwordpress/ "FeedWordPress by Charles Johnson") ;-)
+
 == Screenshots ==
 
 1. The Admin interface, where you set up the magic !
