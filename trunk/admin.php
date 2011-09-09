@@ -84,22 +84,23 @@ function lnx_lifestream_validate_urls_meta($input) { // Validate Meta
 
         $counter = 0;
         foreach ($input as $item) {
-                // I need a proper validation, but this can be a start... no html.
-                $input[$counter]['tags'] =  wp_filter_nohtml_kses($input[$counter]['tags']);
+			// I need a proper validation, but this can be a start... no html.
+			$input[$counter]['tags'] =  wp_filter_nohtml_kses($input[$counter]['tags']);
 
-		// Only Numbers for this one...
+			// Only Numbers for this one...
         	if (!is_numeric($input[$counter]['cat'])) {
                 	 unset($input[$counter]['cat']);
         	}
 
-                // Delete any empty entries..
-                if ($item['tags'] == "") {
-                        unset($input[$counter]['tags']);
-                }
-		if ($item['cat'] == "") {
-                        unset($input[$counter]['cat']);
-                }
-                $counter++;
+			// Delete any empty entries..
+			if ($item['tags'] == "") {
+					unset($input[$counter]['tags']);
+			}
+			if ($item['cat'] == "") {
+					unset($input[$counter]['cat']);
+			}
+			
+			$counter++;
         }
         return $input;
 }

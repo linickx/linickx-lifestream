@@ -158,155 +158,172 @@
 			set_time_limit(20); // Up the Execution Time
 
 			$lnx_lifestream_feed = fetch_feed($lnx_lifestream_url); // go WP-SimplePie, do your thing!
-
+			
 			if ($lnx_lifestream_cronverbose) {
-				echo " \n <h2>Feed ID / Counter = " . $counter . "</h2> \n";
-				echo 'Fetching Feed: <a href="' . $lnx_lifestream_url . '">' . $lnx_lifestream_url .'</a><br />' . "\n";
-			}
-
-			foreach($lnx_lifestream_feed->get_items() as $item)
-			{
-			 
-					// if item is too old dont even look at it
-					if($item->get_date('U') < $expireDate) {
-						if ($lnx_lifestream_cronverbose) {
-							echo $item->get_title() . " Too Old, skipping... <br /> \n";
-						}
-						continue;
-		 			}
-		 
-					// make id
-					$id = md5($item->get_id());
+					echo " \n <h2>Feed ID / Counter = " . $counter . "</h2> \n";
+					echo 'Fetching Feed: <a href="' . $lnx_lifestream_url . '">' . $lnx_lifestream_url .'</a><br />' . "\n";
+				}
+			
+			if (isset($lnx_lifestream_feed->errors)) {
 				
-					// if item is already in db, skip it
-					if(isset($savedItems[$id])) {
-						if ($lnx_lifestream_cronverbose) {
-                                                        echo $item->get_title() . " Is Already in DB, Skipping... <br /> \n";
+				echo 'There is a error downloading the feed. <br /> ';
+				
+				echo '<b>Printing debug</b>: <br /><pre>';
+				print_r($lnx_lifestream_feed->errors);
+				echo '</pre>';
+			
+			} else {
+				
+				foreach($lnx_lifestream_feed->get_items() as $item)
+				{
+				 
+						// if item is too old dont even look at it
+						if($item->get_date('U') < $expireDate) {
+							if ($lnx_lifestream_cronverbose) {
+								echo $item->get_title() . " Too Old, skipping... <br /> \n";
+							}
+							continue;
 						}
-								continue;
-					}
+			 
+						// make id
+						$id = md5($item->get_id());
+					
+						// if item is already in db, skip it
+						if(isset($savedItems[$id])) {
+							if ($lnx_lifestream_cronverbose) {
+															echo $item->get_title() . " Is Already in DB, Skipping... <br /> \n";
+							}
+									continue;
+						}
 
-					// Post fail safe, if id exists in meta data, skip it...
-					$lnx_meta_querey_res = $wpdb->get_results("SELECT meta_key, meta_value FROM $wpdb->postmeta WHERE meta_key = \"lnx_lifestream_id\" AND meta_value = \"$id\"");
-					if ($lnx_meta_querey_res) {
+						// Post fail safe, if id exists in meta data, skip it...
+						$lnx_meta_querey_res = $wpdb->get_results("SELECT meta_key, meta_value FROM $wpdb->postmeta WHERE meta_key = \"lnx_lifestream_id\" AND meta_value = \"$id\"");
+						if ($lnx_meta_querey_res) {
 
-						// Ah-ha, we've found this already exists!
-						if ($lnx_lifestream_cronverbose) {
-                                                        echo $item->get_title() . " Post Fail-Safe tripped, Skipping... <br /> \n";
-                                                }
+							// Ah-ha, we've found this already exists!
+							if ($lnx_lifestream_cronverbose) {
+															echo $item->get_title() . " Post Fail-Safe tripped, Skipping... <br /> \n";
+													}
 
-						// Allow users to override our fail-safe thingy
-						if (isset($_GET['fsoverride'])) {
-							if (is_numeric($_GET['fsoverride'])) {
-								if ($_GET['fsoverride'] == "1") {
-									$lnx_lifestream_fso = true;
+							// Allow users to override our fail-safe thingy
+							if (isset($_GET['fsoverride'])) {
+								if (is_numeric($_GET['fsoverride'])) {
+									if ($_GET['fsoverride'] == "1") {
+										$lnx_lifestream_fso = true;
+									}
 								}
 							}
+
+							if (!$lnx_lifestream_fso) { // Override is off
+																	continue;
+							} else {
+								if ($lnx_lifestream_cronverbose) {
+																echo "Fail-Safe-Overide enabled, posting... " . $item->get_title() . " <br /> \n";
+														}
+							}
+						}
+						
+						// found new item, add it to db
+						$i = array();
+
+						$i['title'] = $item->get_title();
+						$i['title'] = trim($i['title']);
+
+						$i['link'] = $item->get_link();
+						$i['link'] = trim($i['link']);
+
+						$i['author'] = '';
+						$author = $item->get_author();
+						if($author)
+						{
+							$i['author'] = $author->get_name();
+							$i['author'] = trim($i['author']);
 						}
 
-						if (!$lnx_lifestream_fso) { // Override is off
-                                                                continue;
-						} else {
-							if ($lnx_lifestream_cronverbose) {
-                                                        	echo "Fail-Safe-Overide enabled, posting... " . $item->get_title() . " <br /> \n";
-                                                	}
+						$i['date'] = $item->get_date('U');
+						$i['date'] = trim($i['date']);
+
+						/*
+						// This line here is what caused the multi-post issue http://wordpress.org/support/topic/330243
+						// I wanted it so in the future I could post feed content, but since I don't need it now it's part of this comment :-)
+						$i['content'] = $item->get_content();
+						*/
+
+						$i_feed = $item->get_feed();
+
+						$i['feed_link'] = $i_feed->get_permalink();
+						$i['feed_link'] = trim($i['feed_link']);
+
+						$i['feed_title'] = $i_feed->get_title();
+						$i['feed_title'] = trim($i['feed_title']);
+
+
+						if ($lnx_lifestream_cronverbose) {
+															?>
+									<h3>Found a New Item</h3>
+									<ul>
+								<?php
+									echo "<li>Item Title: " . $i['title'] . "</li> \n";
+									echo "<li>Item Link: " . $i['link'] . "</li> \n";
+									echo "<li>Item Author: " . $i['author'] . "</li> \n";
+									echo "<li>Item Date: " . $i['date'] . "</li> \n";
+									echo "<li>Feed Link: " . $i['feed_link'] . "</li> \n";
+									echo "<li>Feed Title: " . $i['feed_title'] . "</li> \n";
+								?>
+									</ul>
+								<?php
 						}
-					}
-					
-					// found new item, add it to db
-					$i = array();
+			 
+						//Create WP Post
+						unset($lnx_post);
+						$lnx_post = array();
+						$lnx_post['post_title'] = $i['title'];
+						$lnx_post['post_status'] = 'publish';
+						$lnx_post['post_author'] = 1;
 
-					$i['title'] = $item->get_title();
-					$i['title'] = trim($i['title']);
+						if (isset($lnx_lifestream_urls_meta[$counter]['cat'])) {
+							$lnx_post['post_category'] = array($lnx_lifestream_urls_meta[$counter]['cat']);
+						}
 
-					$i['link'] = $item->get_link();
-					$i['link'] = trim($i['link']);
+						if (isset($lnx_lifestream_urls_meta[$counter]['tags'])) {
+							$lnx_post['tags_input'] = $lnx_lifestream_urls_meta[$counter]['tags'];
+						}
 
-					$i['author'] = '';
-					$author = $item->get_author();
-					if($author)
-					{
-						$i['author'] = $author->get_name();
-						$i['author'] = trim($i['author']);
-					}
+						$lnx_post['post_date'] = $item->get_date('Y-m-d H:i:s');
+						$lnx_post['post_content'] = '<a href="' . $i['link'] . '">' . $i['title'] . '</a>';
 
-					$i['date'] = $item->get_date('U');
-					$i['date'] = trim($i['date']);
+						// Insert the post into the database
+						$lnx_wp_post_ID =  wp_insert_post( $lnx_post );
 
-					/*
-					// This line here is what caused the multi-post issue http://wordpress.org/support/topic/330243
-					// I wanted it so in the future I could post feed content, but since I don't need it now it's part of this comment :-)
-					$i['content'] = $item->get_content();
-					*/
-
-					$i_feed = $item->get_feed();
-
-					$i['feed_link'] = $i_feed->get_permalink();
-					$i['feed_link'] = trim($i['feed_link']);
-
-					$i['feed_title'] = $i_feed->get_title();
-					$i['feed_title'] = trim($i['feed_title']);
-
-
-					if ($lnx_lifestream_cronverbose) {
-                                                        ?>
-								<h3>Found a New Item</h3>
+						// Post Meta Data, it's like a TAG we were here
+						add_post_meta($lnx_wp_post_ID, 'lnx_lifestream_id', $id);
+									
+						// Set the Post Format
+						if (isset($lnx_lifestream_urls_meta[$counter]['cat'])) {
+							set_post_format( $lnx_wp_post_ID , $lnx_lifestream_urls_meta[$counter]['format']);
+						}
+						
+						if ($lnx_lifestream_cronverbose) {
+							?>	<h3>Creating New Post - <?php echo $lnx_wp_post_ID; ?></h3>
 								<ul>
 							<?php
-								echo "<li>Item Title: " . $i['title'] . "</li> \n";
-								echo "<li>Item Link: " . $i['link'] . "</li> \n";
-								echo "<li>Item Author: " . $i['author'] . "</li> \n";
-								echo "<li>Item Date: " . $i['date'] . "</li> \n";
-								echo "<li>Feed Link: " . $i['feed_link'] . "</li> \n";
-								echo "<li>Feed Title: " . $i['feed_title'] . "</li> \n";
+								echo "<li>Post Title: " . $lnx_post['post_title'] . "</li> \n";
+								echo "<li>Post Status: " . $lnx_post['post_status'] . "</li> \n";
+								echo "<li>Post Author: " . $lnx_post['post_author'] . "</li> \n";
+								echo "<li>Post Category: " . $lnx_post['post_category']  . "</li> \n";
+								echo "<li>Post Tags: " . $lnx_post['tags_input'] . "</li> \n";
+								echo "<li>Post Date: " . $lnx_post['post_date'] .  "</li> \n";
+								echo "<li>Post Content: " . $lnx_post['post_content'] . "</li> \n";
+								echo "<li>Post Meta ID: " . $id .  "</li> \n";
+								echo "<li>Post Format: " . $lnx_lifestream_urls_meta[$counter]['format'] .  "</li> \n";
 							?>
 								</ul>
+								<hr />
 							<?php
-					}
-		 
-					//Create WP Post
-					unset($lnx_post);
-					$lnx_post = array();
-					$lnx_post['post_title'] = $i['title'];
-					$lnx_post['post_status'] = 'publish';
-					$lnx_post['post_author'] = 1;
+						}
 
-					if (isset($lnx_lifestream_urls_meta[$counter]['cat'])) {
-						$lnx_post['post_category'] = array($lnx_lifestream_urls_meta[$counter]['cat']);
-					}
-
-					if (isset($lnx_lifestream_urls_meta[$counter]['tags'])) {
-						$lnx_post['tags_input'] = $lnx_lifestream_urls_meta[$counter]['tags'];
-					}
-
-					$lnx_post['post_date'] = $item->get_date('Y-m-d H:i:s');
-					$lnx_post['post_content'] = '<a href="' . $i['link'] . '">' . $i['title'] . '</a>';
-
-					// Insert the post into the database
-					$lnx_wp_post_ID =  wp_insert_post( $lnx_post );
-
-					// Post Meta Data, it's like a TAG we were here
-					add_post_meta($lnx_wp_post_ID, 'lnx_lifestream_id', $id);
-
-					if ($lnx_lifestream_cronverbose) {
-						?>	<h3>Creating New Post - <?php echo $lnx_wp_post_ID; ?></h3>
-							<ul>
-						<?php
-							echo "<li>Post Title: " . $lnx_post['post_title'] . "</li> \n";
-							echo "<li>Post Status: " . $lnx_post['post_status'] . "</li> \n";
-							echo "<li>Post Author: " . $lnx_post['post_author'] . "</li> \n";
-							echo "<li>Post Category: " . $lnx_post['post_category']  . "</li> \n";
-							echo "<li>Post Tags: " . $lnx_post['tags_input'] . "</li> \n";
-							echo "<li>Post Date: " . $lnx_post['post_date'] .  "</li> \n";
-							echo "<li>Post Content: " . $lnx_post['post_content'] . "</li> \n";
-							echo "<li>Post Meta ID: " . $id .  "</li> \n";
-						?>
-							</ul>
-							<hr />
-						<?php
-					}
-
-					$savedItems[$id] = $i;
+						$savedItems[$id] = $i;
+				}
 			}
 			$counter++;
 		}

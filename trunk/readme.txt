@@ -3,7 +3,7 @@ Contributors: linickx
 Donate link: http://www.linickx.com/donate
 Tags: lifestream, feed
 Requires at least: 2.8.4
-Tested up to: 2.9
+Tested up to: 3.2.1
 Stable tag: 0.2
 
  A WordPress Plug-in which allows you to lifestream any Feed!
@@ -62,6 +62,9 @@ What you need is [FeedWordPress](http://wordpress.org/extend/plugins/feedwordpre
 1. The Admin interface, where you set up the magic !
 
 == Changelog ==
+
+= 0.2.1 =
+* Post Format Support
 
 = 0.2 =
 * Troubleshooting Feature-Pack

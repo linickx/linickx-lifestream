@@ -19,6 +19,7 @@
 					$lnx_lifestream_urls[0] = "http://www.linickx.com/feed";
 				}
 				$categories=  get_categories('hide_empty=0'); // Post Categories.
+				$post_formats = get_post_format_strings(); // Post Formats.
 			?>
 			<table class="form-table">
 			<?php
@@ -51,6 +52,22 @@
 			?>
 					</select></td>
 					<td>Tags:<input type="text" name="lnx_lifestream_urls_meta[<?php echo $counter;?>][tags]" value="<?php echo $lnx_lifestream_urls_meta[$counter]['tags']; ?>" /> </td>
+					<td>Post Format: <select name="lnx_lifestream_urls_meta[<?php echo $counter;?>][format]" ><option value="standard"><?php echo attribute_escape(__('Select Format')); ?></option> 
+			<?php
+					while ($element = current($post_formats)) {
+						$option = '<option value="'. key($post_formats) . '"';
+						if ($lnx_lifestream_urls_meta[$counter]['format'] == key($post_formats)) {
+							$option .= ' selected ';
+						}
+						$option .= '>';
+						$option .= $element;
+						$option .= '</option>';
+						echo $option;
+						next($post_formats);
+					}
+					reset($post_formats);
+				?>
+					</select></td>
 				</tr>
 			<?php
 				$counter++;
@@ -71,6 +88,22 @@
                         ?>
 				</select> <br /><span class="description">What Category should be used for posts?</span></td>
                                         <td>Tags:<input type="text" name="lnx_lifestream_urls_meta[<?php echo $counter;?>][tags]" value="" /> <br /><span class="description">What Tags should be used for posts?</span></td>
+					<td>Post Format: <select name="lnx_lifestream_urls_meta[<?php echo $counter;?>][format]" ><option value=""><?php echo attribute_escape(__('Select Format')); ?></option> 
+					<?php
+						while ($element = current($post_formats)) {
+							$option = '<option value="'. key($post_formats) . '"';
+							if ($lnx_lifestream_urls_meta[$counter]['format'] == key($post_formats)) {
+								$option .= ' selected ';
+							}
+							$option .= '>';
+							$option .= $element;
+							$option .= '</option>';
+							echo $option;
+							next($post_formats);
+						}
+						reset($post_formats);
+						?>
+					</select><br /><span class="description">Chose a post format, if unsure use Standard.</span></td>
 				</tr>
 			</table>
 			<p class="submit">

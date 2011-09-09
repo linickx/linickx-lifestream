@@ -3,7 +3,7 @@
 Plugin Name: LINICKX LifeStream
 Plugin URI: http://www.linickx.com/archives/2751/linickx-lifestream-v0-2
 Description: A WordPress Plug-in which allows you to lifestream any Feed! 
-Version: 0.2
+Version: 0.2.1
 Author: Nick Bettison
 Author URI: http://www.linickx.com/
 */
