@@ -64,6 +64,8 @@ What you need is [FeedWordPress](http://wordpress.org/extend/plugins/feedwordpre
 == Changelog ==
 
 = 0.2.1 =
+* Admin Pg Updates, including Context Help.
+* Fail without Bail for RSS Feeds.
 * Post Format Support
 
 = 0.2 =

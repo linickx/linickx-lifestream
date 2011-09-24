@@ -110,7 +110,6 @@
 			<input type="submit" class="button-primary" value="<?php _e('Save URLs') ?>" />
 			</p>
 
-		<h3>General Options</h3>
 			<?php
 				$options = get_option('lnx_lifestream_options'); // Generic Plugin Options.
 				
@@ -142,6 +141,8 @@
                                 }
 			
 			?>
+			<div style="float:left">
+			<h3>General Options</h3>
 			<table class="form-table">
 				<tr valign="top"><th scope="row" style="width:400px">Update Method <br /> <span class="description">Who's in charge of updating your feeds? </span></th>
                                         <td><input type="radio" name="lnx_lifestream_options[update]" value="wp" <?php echo $update_wp_status;?>>WordPress Automatic <input type="radio" name="lnx_lifestream_options[update]" value="cron" <?php echo $update_cron_status;?>>Cron </td>
@@ -171,6 +172,29 @@
                                         <td><input type="radio" name="lnx_lifestream_options[feeddb]" value="wp" <?php echo $feeddb_wp_status;?>>WordPress Database <input type="radio" name="lnx_lifestream_options[feeddb]" value="file" <?php echo $feeddb_file_status;?>>File </td>
                                 </tr>
 			 </table>
+			</div>
+
+			<div style="float:right; text-align:center" >
+			<?php
+				if ( $options['donate'] == "1" ) {
+					echo '<p>&nbsp;</p>';
+				} else {
+			?>
+			<a href="http://www.linickx.com/donate">
+			<img src="<?php echo plugins_url( '/admin/donate.png' , dirname(__FILE__) )?>" alt="donate" /> <br />
+			<small>Buy the author a beer to say thanks!</small>
+			</a> <br />
+			<small>
+			<input type="checkbox" name="lnx_lifestream_options[donate]" value="1" <?php checked('1', $options['donate']); ?> ><em>Tick, yep done that!</em>
+			</small>
+			<?php
+				}
+			?>
+			</div>
+
+			<div style="clear:both">
+			&nbsp;
+			</div>
                         <p class="submit">
                         <input type="submit" class="button-primary" value="<?php _e('Save Options') ?>" />
                         </p>
@@ -195,6 +219,13 @@
 		<?php
 	        # Let's tell users about plug-in news!
 	        $lnx_lifestreamNEWSfeed = fetch_feed('http://www.linickx.com/archives/tag/linickx-lifestream/feed');
+
+			if (isset($lnx_lifestreamNEWSfeed->errors)) {
+				
+				echo '<li><b>Error Downloading Feed</b>. Looks like you are going to have to visit <a href="http://www.linickx.com/archives/tag/linickx-lifestream/">http://www.linickx.com/archives/tag/linickx-lifestream/</a> manually to keep up with the news! </li>';
+				
+				
+			} else {
 		?>
 		        <h3>LINICKX LifeSteam Plug-in News</h3>
 		        <ul>
@@ -205,7 +236,9 @@
 		?>
         		</ul>
         		<p><small><a href="http://www.linickx.com/archives/tag/linickx-lifestream/feed">Subcribe to this feed</a></small></p>
-
+			<?php
+			}
+				?>
 	</div>
 <?php
 

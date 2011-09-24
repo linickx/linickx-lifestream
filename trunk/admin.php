@@ -3,6 +3,7 @@
 // plug us into the admin dashboard...
 add_action('admin_init', 'lnx_lifestream_init' );
 add_action('admin_menu', 'lnx_lifestream_add_page');
+add_action('contextual_help', 'lnx_lifestream_help', 10, 3); 	
 
 // Admin Warning
 add_action('admin_notices', 'lnx_lifestream_cron_warning');
@@ -17,7 +18,10 @@ function lnx_lifestream_init(){
 
 // Add menu page
 function lnx_lifestream_add_page() {
-	add_options_page('Linickx LifeStream Options', 'LifeStream', 'manage_options', 'lnx_lifestream', 'lnx_lifestream_do_page');
+	
+	global $lnx_lifestream_admin_hook;
+	
+	$lnx_lifestream_admin_hook= add_options_page('Linickx LifeStream Options', 'LifeStream', 'manage_options', 'lnx_lifestream', 'lnx_lifestream_do_page');
 }
 
 // Draw the menu page itself
@@ -60,6 +64,18 @@ function lnx_lifestream_do_page() {
 
 	}
 }
+	
+function lnx_lifestream_help($contextual_help, $screen_id, $screen) {
+	
+	global $lnx_lifestream_admin_hook;
+	
+	if ($screen_id == $lnx_lifestream_admin_hook) {
+		
+		$contextual_help = file_get_contents(WP_PLUGIN_DIR . '/linickx-lifestream/admin/help.inc.php'); // the help html
+	}
+	
+	return $contextual_help;
+}	
 
 // Sanitize and validate input. Accepts an array, return a sanitized array.
 function lnx_lifestream_validate_urls($input) {
@@ -146,6 +162,9 @@ function lnx_lifestream_validate_options($input) { // Validate options...
 
 	// Vailidate our Checkbox value is either 0 or 1
 	$input['cronverbose'] = ( $input['cronverbose'] == 1 ? 1 : 0 );
+	
+	// ..another checkbox
+	$input['donate'] = ( $input['donate'] == 1 ? 1 : 0 );
 
 
 	return $input;
