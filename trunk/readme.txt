@@ -89,3 +89,8 @@ What you need is [FeedWordPress](http://wordpress.org/extend/plugins/feedwordpre
 
 = 0.1 =
 * Initial Release
+
+== Upgrade Notice ==
+
+= 0.2.1 =
+Optional Upgrade, worth it for TwentyEleven users.
