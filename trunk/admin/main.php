@@ -68,6 +68,8 @@
 					reset($post_formats);
 				?>
 					</select></td>
+
+					<td>oEmbed: <input type="checkbox" name="lnx_lifestream_urls_meta[<?php echo $counter;?>][oembed]" value="1" <?php checked('1', $lnx_lifestream_urls_meta[$counter]['oembed']); ?> ></td>
 				</tr>
 			<?php
 				$counter++;
@@ -104,6 +106,8 @@
 						reset($post_formats);
 						?>
 					</select><br /><span class="description">Chose a post format, if unsure use Standard.</span></td>
+
+					<td>oEmbed: <input type="checkbox" name="lnx_lifestream_urls_meta[<?php echo $counter;?>][oembed]" value="1" > <br /> <span class="description">Does this feed come from a <a href="http://codex.wordpress.org/Embeds">WordPress Embedded</a> provider?</span></td>
 				</tr>
 			</table>
 			<p class="submit">
@@ -181,7 +185,7 @@
 				} else {
 			?>
 			<a href="http://www.linickx.com/donate">
-			<img src="<?php echo plugins_url( '/admin/donate.png' , dirname(__FILE__) )?>" alt="donate" /> <br />
+			<img src="<?php echo plugins_url( '/linickx-lifestream/admin/donate.png' )?>" alt="donate" /> <br />
 			<small>Buy the author a beer to say thanks!</small>
 			</a> <br />
 			<small>

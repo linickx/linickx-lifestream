@@ -290,7 +290,21 @@
 						}
 
 						$lnx_post['post_date'] = $item->get_date('Y-m-d H:i:s');
-						$lnx_post['post_content'] = '<a href="' . $i['link'] . '">' . $i['title'] . '</a>';
+
+						if (isset($lnx_lifestream_urls_meta[$counter]['oembed'])) {
+
+							if ( $lnx_lifestream_urls_meta[$counter]['oembed'] == "1") {
+
+								$lnx_post['post_content'] = $i['link'];
+
+							} else {
+								$lnx_post['post_content'] = '<a href="' . $i['link'] . '">' . $i['title'] . '</a>';
+							}
+
+						} else {
+							$lnx_post['post_content'] = '<a href="' . $i['link'] . '">' . $i['title'] . '</a>';
+						}
+						
 
 						// Insert the post into the database
 						$lnx_wp_post_ID =  wp_insert_post( $lnx_post );
